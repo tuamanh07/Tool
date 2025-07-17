@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool Nháy Tài Xỉu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html {
+      background: #000;
+      color: #0f0;
+      font-family: 'Share Tech Mono', monospace;
+      width: 100%; height: 100%; overflow: hidden;
+    }
+    #keyScreen, #container, #floatingPopup, #exitIframeBtn, #fullscreenIframe {
+      transition: all 0.3s ease;
+    }
+    #keyScreen {
+      padding: 30px;
+      text-align: center;
+    }
+    input, button {
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      display: block;
+      width: 90%; margin: 10px auto;
+    }
+    button:hover { background: #0f0; color: #000; }
+
+    #container {
+      padding: 20px;
+      text-align: center;
+      display: none;
+    }
+
+    #fullscreenIframe {
+      width: 100%; height: 100vh; border: none;
+      display: none; position: absolute; top: 0; left: 0; z-index: 1;
+    }
+
+    #exitIframeBtn {
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      background-color: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      z-index: 10000;
+      display: none;
+      max-width: 120px;
+    }
+
+    #floatingPopup {
+      position: fixed;
+      top: 50px;
+      left: 50px;
+      width: 200px;
+      height: 220px;
+      background-color: #111;
+      border: 2px solid #00ff00;
+      z-index: 9999;
+      display: none;
+      padding: 10px;
+      border-radius: 12px;
+      touch-action: none;
+      text-align: center;
+    }
+
+    .circle-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #00ff00;
+      color: black;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px auto;
+      animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+
+    .hidden { display: none; }
+
+    #waitingText {
+      font-size: 14px;
+      color: #888;
+      text-align: center;
+    }
+
+    #menuTitle {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="keyScreen">
+  <h2>🔐 Nhập Key Truy Cập</h2>
+  <input type="password" id="keyInput" placeholder="Nhập key..." />
+  <button onclick="verifyKey()">Xác Nhận</button>
+</div>
+
+<div id="container">
+  <h2>🔐 TOOL NHÁY Tuam Anh</h2>
+  <input type="text" id="urlInput" placeholder="Nhập link game cần truy cập" />
+  <button onclick="loadIframe()">Xâm Nhập</button>
+</div>
+
+<iframe id="fullscreenIframe"></iframe>
+<button id="exitIframeBtn" onclick="exitIframe()">Thoát</button>
+
+<div id="floatingPopup">
+  <div id="menuTitle">Tuam Anh</div>
+  <div id="logo1" class="circle-logo hidden">TÀI</div>
+  <div id="logo2" class="circle-logo hidden">XỈU</div>
+  <div id="waitingText">⏳ Đang xử lý...</div>
+</div>
+
+<script>
+  const correctKey = "TuamAnhvip1";
+
+  function verifyKey() {
+    const inputKey = document.getElementById("keyInput").value.trim();
+    if (inputKey === correctKey) {
+      document.getElementById("keyScreen").style.display = "none";
+      document.getElementById("container").style.display = "block";
+    } else {
+      alert("Sai key! Vui lòng thử lại.");
+    }
+  }
+
+  function loadIframe() {
+    let url = document.getElementById("urlInput").value.trim();
+    if (!/^(https?:\/\/)/.test(url)) url = "https://" + url;
+
+    document.getElementById("fullscreenIframe").src = url;
+    document.getElementById("fullscreenIframe").style.display = "block";
+    document.getElementById("container").style.display = "none";
+    document.getElementById("floatingPopup").style.display = "block";
+    document.getElementById("exitIframeBtn").style.display = "block";
+  }
+
+  function exitIframe() {
+    document.getElementById("fullscreenIframe").style.display = "none";
+    document.getElementById("floatingPopup").style.display = "none";
+    document.getElementById("exitIframeBtn").style.display = "none";
+    document.getElementById("container").style.display = "block";
+  }
+
+  let lastLogo = null, repeatCount = 0;
+  function getNextLogo() {
+    let newLogo;
+    if (lastLogo === "logo1")
+      newLogo = repeatCount >= 5 ? "logo2" : (Math.random() < 0.5 ? "logo1" : "logo2");
+    else
+      newLogo = repeatCount >= 5 ? "logo1" : (Math.random() < 0.5 ? "logo2" : "logo1");
+
+    repeatCount = (newLogo === lastLogo) ? repeatCount + 1 : 1;
+    lastLogo = newLogo;
+    return newLogo;
+  }
+
+  function toggleLogo() {
+    const l1 = document.getElementById("logo1");
+    const l2 = document.getElementById("logo2");
+    const wt = document.getElementById("waitingText");
+
+    wt.style.display = "block";
+    l1.classList.add("hidden");
+    l2.classList.add("hidden");
+
+    setTimeout(() => {
+      const sel = getNextLogo() === "logo1" ? l1 : l2;
+      wt.style.display = "none";
+      sel.classList.remove("hidden");
+      sel.classList.add("fade-in");
+
+      setTimeout(() => {
+        sel.classList.add("fade-out");
+        setTimeout(() => {
+          sel.classList.add("hidden");
+          sel.classList.remove("fade-in", "fade-out");
+          wt.style.display = "block";
+        }, 1000);
+      }, 14000);
+    }, 60000);
+  }
+
+  setInterval(toggleLogo, 60000);
+  toggleLogo();
+
+  // Kéo popup bằng cảm ứng
+  const popup = document.getElementById("floatingPopup");
+  let isDragging = false, offsetX = 0, offsetY = 0;
+
+  popup.addEventListener("touchstart", function(e) {
+    isDragging = true;
+    const touch = e.touches[0];
+    const rect = popup.getBoundingClientRect();
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+  });
+
+  popup.addEventListener("touchmove", function(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    let left = touch.clientX - offsetX;
+    let top = touch.clientY - offsetY;
+
+    // Giới hạn trong màn hình
+    const maxLeft = window.innerWidth - popup.offsetWidth;
+    const maxTop = window.innerHeight - popup.offsetHeight;
+    if (left < 0) left = 0;
+    if (top < 0) top = 0;
+    if (left > maxLeft) left = maxLeft;
+    if (top > maxTop) top = maxTop;
+
+    popup.style.left = left + "px";
+    popup.style.top = top + "px";
+  });
+
+  popup.addEventListener("touchend", function() {
+    isDragging = false;
+  });
+</script>
+
+</body>
+</html>
